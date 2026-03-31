@@ -110,16 +110,33 @@ export const SettingsModal = () => {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-sm font-semibold">Model Version</Label>
+                <div className="flex items-center justify-between">
+                  <Label className="text-sm font-semibold">Model Version</Label>
+                  {modelName === "custom" && (
+                    <span className="text-[10px] text-accent font-bold animate-pulse">CUSTOM MODE</span>
+                  )}
+                </div>
                 <select 
-                  value={modelName}
-                  onChange={(e) => setModelName(e.target.value)}
+                  value={modelName.startsWith("gemini-") || modelName === "custom" ? (["gemini-1.5-flash", "gemini-1.5-pro", "gemini-2.0-flash-exp", "gemini-2.5-flash", "gemini-3-flash"].includes(modelName) ? modelName : "custom") : "custom"}
+                  onChange={(e) => setModelName(e.target.value === "custom" ? "" : e.target.value)}
                   className="w-full h-10 px-3 py-2 text-sm bg-background border border-input rounded-md ring-offset-background outline-none"
                 >
-                  <option value="gemini-1.5-flash">Gemini 1.5 Flash (Recommended)</option>
+                  <option value="gemini-1.5-flash">Gemini 1.5 Flash (Stable)</option>
                   <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
                   <option value="gemini-2.0-flash-exp">Gemini 2.0 Flash (Next Gen)</option>
+                  <option value="gemini-2.5-flash">Gemini 2.5 Flash (Placeholder)</option>
+                  <option value="gemini-3-flash">Gemini 3 Flash (Placeholder)</option>
+                  <option value="custom">-- Use Custom Model Name --</option>
                 </select>
+                
+                {(modelName === "" || !["gemini-1.5-flash", "gemini-1.5-pro", "gemini-2.0-flash-exp", "gemini-2.5-flash", "gemini-3-flash"].includes(modelName)) && (
+                  <Input
+                    placeholder="Enter custom model name (e.g. gemini-3-pro)"
+                    value={modelName}
+                    onChange={(e) => setModelName(e.target.value)}
+                    className="mt-2 font-mono text-xs"
+                  />
+                )}
               </div>
             </div>
           )}
@@ -131,6 +148,7 @@ export const SettingsModal = () => {
               </Button>
             </div>
           </div>
+
         </div>
       </DialogContent>
     </Dialog>
