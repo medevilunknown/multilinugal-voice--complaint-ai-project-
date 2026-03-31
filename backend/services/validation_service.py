@@ -5,7 +5,7 @@ from email_validator import validate_email, EmailNotValidError
 from utils.constants import COMPLAINT_TYPES, REQUIRED_COMPLAINT_FIELDS
 
 
-PHONE_RE = re.compile(r"^[6-9]\d{9}$")
+PHONE_RE = re.compile(r"^(\+91|91)?[6-9]\d{9}$")
 UTR_RE = re.compile(r"^[A-Za-z0-9\-]{8,30}$")
 SIMPLE_EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
@@ -19,29 +19,21 @@ class ValidationService:
         return missing
 
     def validate_phone(self, phone: str) -> bool:
-        digits = re.sub(r"\D", "", phone or "")
-        if len(digits) == 12 and digits.startswith("91"):
-            digits = digits[2:]
-        if len(digits) != 10:
-            return False
-        return bool(PHONE_RE.match(digits))
+        clean = phone.replace(" ", "")
+        return bool(PHONE_RE.match(clean))
 
-    def validate_email(self, email: str | None) -> bool:
-        text = (email or "").strip()
-        if not text or text.lower() in {"n/a", "na", "none", "skip"}:
-            return True
+    def validate_email(self, email: str) -> bool:
         try:
-            validate_email(text, check_deliverability=False)
+            validate_email(email, check_deliverability=False)
             return True
         except EmailNotValidError:
             # Keep syntax-friendly fallback to avoid blocking users on special-use domains.
-            return bool(SIMPLE_EMAIL_RE.match(text))
+            return bool(SIMPLE_EMAIL_RE.match(email or ""))
 
     def validate_utr(self, utr: str | None) -> bool:
-        text = (utr or "").strip()
-        if not text or text.lower() in {"n/a", "na", "none", "skip"}:
+        if not utr:
             return True
-        return bool(UTR_RE.match(text))
+        return bool(UTR_RE.match(utr))
 
     def validate_complaint_type(self, complaint_type: str) -> bool:
         return complaint_type in COMPLAINT_TYPES
@@ -56,7 +48,7 @@ class ValidationService:
         if "phone_number" in payload and not self.validate_phone(payload["phone_number"]):
             errors.append("Invalid phone format")
 
-        if "email" in payload and not self.validate_email(payload.get("email")):
+        if "email" in payload and not self.validate_email(payload["email"]):
             errors.append("Invalid email format")
 
         if "transaction_id" in payload and not self.validate_utr(payload.get("transaction_id")):

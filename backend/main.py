@@ -1,8 +1,13 @@
 import os
-from fastapi import FastAPI
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
-from sqlalchemy import text
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.errors import RateLimitExceeded
+from slowapi.util import get_remote_address
 from sqlalchemy.orm import Session
 
 import models  # noqa: F401
@@ -14,12 +19,35 @@ from routes.ai import router as ai_router
 from routes.chat import router as chat_router
 from routes.complaint import router as complaint_router
 from utils.file_utils import ensure_upload_dirs
+from utils.logger import log
 from utils.security import hash_password
 
+# ─── Rate Limiter ─────────────────────────────────────────────────────
+limiter = Limiter(key_func=get_remote_address, default_limits=["60/minute"])
 
-app = FastAPI(title="CyberGuard AI Backend", version="1.0.0")
+
+# ─── Lifespan (replaces deprecated on_event) ──────────────────────────
+@asynccontextmanager
+async def lifespan(application: FastAPI):
+    # Startup
+    Base.metadata.create_all(bind=engine)
+    seed_admin()
+    log.info("CyberGuard AI backend started successfully")
+    yield
+    # Shutdown
+    log.info("CyberGuard AI backend shutting down")
+
+
+app = FastAPI(
+    title="CyberGuard AI Backend",
+    version="2.0.0",
+    description="Enterprise-grade AI-powered Cyber Crime Complaint System",
+    lifespan=lifespan,
+)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
 Base.metadata.create_all(bind=engine)
-# seed_admin() # Optional if needed now
 
 # Ensure upload folders exist before serving static files.
 try:
@@ -27,36 +55,21 @@ try:
     if os.path.exists(settings.upload_dir):
         app.mount("/uploads", StaticFiles(directory=settings.upload_dir), name="uploads")
 except Exception as e:
-    print(f"Static mount failed: {e}")
+    log.warning(f"Static mount failed: {e}")
+
+# ─── CORS Configuration ───────────────────────────────────────────────
+ALLOWED_ORIGINS = os.environ.get(
+    "CORS_ORIGINS",
+    "http://localhost:8080,http://localhost:8081,http://127.0.0.1:8080,http://127.0.0.1:8081",
+).split(",")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:8080",
-        "http://localhost:8081",
-        "http://localhost:8082",
-        "http://localhost:5173",
-        "http://127.0.0.1:8080",
-        "http://127.0.0.1:8081",
-        "http://127.0.0.1:8082",
-        "http://127.0.0.1:5173",
-    ],
-    # Allow local dev origins on arbitrary ports (Vite, preview, static servers).
-    allow_origin_regex=r"https?://(localhost|127\.0\.0\.1)(:\d+)?$",
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
-    allow_methods=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
     allow_headers=["*"],
 )
-
-
-@app.on_event("startup")
-def on_startup():
-    Base.metadata.create_all(bind=engine)
-    ensure_sqlite_columns()
-    seed_admin()
-
-def health():
-    return {"status": "ok"}
 
 
 def seed_admin() -> None:
@@ -66,29 +79,14 @@ def seed_admin() -> None:
         if not admin:
             db.add(Admin(email=settings.admin_email, password=hash_password(settings.admin_password)))
             db.commit()
+            log.info("Admin user seeded successfully")
     finally:
         db.close()
 
 
-def ensure_sqlite_columns() -> None:
-    if not str(settings.database_url).startswith("sqlite"):
-        return
-
-    required_columns = {
-        "suspect_vpa": "TEXT",
-        "suspect_phone": "TEXT",
-        "suspect_bank_account": "TEXT",
-    }
-
-    try:
-        with engine.begin() as conn:
-            rows = conn.execute(text("PRAGMA table_info(complaints)"))
-            existing = {row[1] for row in rows}
-            for col, col_type in required_columns.items():
-                if col not in existing:
-                    conn.exec_driver_sql(f"ALTER TABLE complaints ADD COLUMN {col} {col_type}")
-    except Exception as e:
-        print(f"SQLite schema patch skipped: {e}")
+@app.get("/health")
+def health():
+    return {"status": "ok", "version": "2.0.0"}
 
 
 @app.get("/")

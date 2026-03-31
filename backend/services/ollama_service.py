@@ -4,15 +4,14 @@ Uses a local Ollama instance (llama2) as a drop-in alternative to Gemini.
 """
 
 import json
-import re
 import requests
 
 from utils.constants import COMPLAINT_TYPES, REQUIRED_COMPLAINT_FIELDS, SUPPORTED_LANGUAGES
 
 
 OLLAMA_BASE_URL = "http://localhost:11434"
-# Prefer smaller/faster models first; fall back to larger ones
-OLLAMA_MODEL_PREFERENCE = ["phi3:mini", "phi3", "phi", "mistral", "llama3", "llama2", "codellama"]
+# Prefer highly-trained/larger models first for better JSON reasoning; fall back to fast/smaller ones
+OLLAMA_MODEL_PREFERENCE = ["llama3", "mistral", "llama2", "phi3:mini", "phi3", "phi", "codellama"]
 
 
 class OllamaService:
@@ -22,11 +21,10 @@ class OllamaService:
 
     def _pick_model(self) -> str:
         """Return the fastest available model from the preference list."""
-        available: list[str] = []
         try:
             resp = requests.get(f"{self.base_url}/api/tags", timeout=3)
             resp.raise_for_status()
-            available = [m.get("name", "") for m in resp.json().get("models", []) if m.get("name")]
+            available = [m["name"] for m in resp.json().get("models", [])]
             print(f"[ollama] Available models: {available}")
             for preferred in OLLAMA_MODEL_PREFERENCE:
                 for avail in available:
@@ -37,50 +35,19 @@ class OllamaService:
         except Exception:
             return "llama2"
 
-    def _list_models(self) -> list[str]:
-        try:
-            resp = requests.get(f"{self.base_url}/api/tags", timeout=3)
-            resp.raise_for_status()
-            return [m.get("name", "") for m in resp.json().get("models", []) if m.get("name")]
-        except Exception:
-            return []
-
-    def _refresh_model_if_needed(self) -> None:
-        available = self._list_models()
-        if not available:
-            return
-
-        if any(self.model == model for model in available):
-            return
-
-        for preferred in OLLAMA_MODEL_PREFERENCE:
-            for avail in available:
-                if preferred in avail:
-                    self.model = avail
-                    print(f"[ollama] Refreshed model to: {self.model}")
-                    return
-
-        self.model = available[0]
-        print(f"[ollama] Refreshed model to first available: {self.model}")
-
-    def _generate(self, prompt: str, retries: int = 1) -> str:
+    def _generate(self, prompt: str, retries: int = 2) -> str:
         import time
         for i in range(retries):
             try:
-                self._refresh_model_if_needed()
                 resp = requests.post(
                     f"{self.base_url}/api/generate",
                     json={"model": self.model, "prompt": prompt, "stream": False},
-                    timeout=8,  # keep local voice UX responsive
+                    timeout=180,  # 3 minutes — CPU inference can be slow
                 )
                 resp.raise_for_status()
                 return resp.json().get("response", "")
             except Exception as e:
                 err_str = str(e).lower()
-                if "not found" in err_str and i < retries - 1:
-                    self._refresh_model_if_needed()
-                    time.sleep(0.5)
-                    continue
                 if i < retries - 1 and "timeout" not in err_str:
                     time.sleep(1)
                     continue
@@ -89,31 +56,28 @@ class OllamaService:
         return ""
 
     def _safe_json_parse(self, text: str) -> dict:
+        import re
         text = text.strip()
-        if text.startswith("```"):
-            text = text.replace("```json", "").replace("```", "").strip()
-        # Try to extract JSON from surrounding text
-        start = text.find("{")
-        end = text.rfind("}") + 1
-        if start >= 0 and end > start:
-            text = text[start:end]
+        
+        # Try to find a JSON object using regex if there's markdown or chatty text
+        match = re.search(r'\{[\s\S]*\}', text)
+        if match:
+            text = match.group(0)
+            
         try:
             return json.loads(text)
+        except json.JSONDecodeError:
+            return {}
         except json.JSONDecodeError:
             return {}
 
     def is_available(self) -> bool:
         """Check if Ollama is running and the model is available."""
         try:
-            models = self._list_models()
-            if not models:
-                return False
-
-            # Keep model valid even if local model list changes over time.
-            if not any(self.model == m for m in models):
-                self._refresh_model_if_needed()
-
-            return bool(models)
+            resp = requests.get(f"{self.base_url}/api/tags", timeout=3)
+            resp.raise_for_status()
+            models = [m["name"] for m in resp.json().get("models", [])]
+            return any(self.model in m for m in models)
         except Exception:
             return False
 
@@ -128,42 +92,14 @@ class OllamaService:
         return guess if guess in SUPPORTED_LANGUAGES else "English"
 
     def translate_text(self, text: str, target_language: str) -> str:
-        if not text.strip():
+        if not text.strip() or target_language.lower() == "english":
             return text
         prompt = (
-            f"Translate the following text to {target_language}. "
-            "Keep meaning exact, simple, and natural. "
-            "Return ONLY the translated text, with no explanation, no transliteration, and no quotes.\n\n"
+            f"Translate the following text strictly to {target_language}. "
+            "Return ONLY the translated text. Do not provide explanations, notes, or alternative versions.\n\n"
             f"Text: {text}"
         )
-        raw = (self._generate(prompt) or "").strip()
-        return self._clean_translation_output(raw)
-
-    def _clean_translation_output(self, raw: str) -> str:
-        text = (raw or "").strip()
-        if not text:
-            return ""
-
-        lines = [line.strip(" \t\"'") for line in text.splitlines() if line.strip()]
-        if not lines:
-            return ""
-
-        meta_pattern = re.compile(
-            r"^(here('?| i)s|translation|translated|this translates|note:)",
-            flags=re.IGNORECASE,
-        )
-
-        for line in lines:
-            lowered = line.lower()
-            if meta_pattern.match(lowered):
-                continue
-            if "translates to" in lowered:
-                continue
-            if line.startswith("(") and line.endswith(")"):
-                continue
-            return line
-
-        return lines[0]
+        return (self._generate(prompt) or "").strip()
 
     def generate_complaint_chat_reply(
         self,
@@ -180,6 +116,10 @@ Your job:
 3. Acknowledge briefly what you understood, then ask for the NEXT missing field only
 4. Be conversational and brief (voice-friendly, no long lists)
 5. Always respond in: {user_language}
+6. IMPORTANT: Do NOT ask the user to upload, share, or submit any documents. Focus ONLY on text fields.
+7. CRITICAL: If the user provides a very short answer (e.g. just a number, email, or city), it is the answer to the previously asked question. You MUST extract it and return valid JSON. Do NOT output conversational text outside the JSON.
+8. DYNAMIC LOGIC: You have access to both Required and Optional fields. Use your intelligence to dynamically choose the most logical NEXT question. For example, if it's financial fraud, aggressively ask for `amount_lost`, `transaction_id`, and `suspect_vpa`. If it's a social media hack, ask for `platform`. Do not just follow a rigid sequence.
+9. Output the exact name of the field you are asking for in `next_required_field`.
 
 Field extraction rules & mappings:
 - Name -> `full_name`
@@ -188,7 +128,7 @@ Field extraction rules & mappings:
 - Money lost / amount -> `amount_lost`
 - UPI -> `suspect_vpa`
 - Suspect's phone -> `suspect_phone`
-- When it happened -> `date_time`
+- When it happened -> `date_time` (If present, format as ISO YYYY-MM-DD'T'HH:MM)
 - App/website used -> `platform`
 - What happened -> `description` AND `complaint_type`
 
@@ -196,14 +136,14 @@ Required fields: {REQUIRED_COMPLAINT_FIELDS}
 Optional: amount_lost, transaction_id, suspect_details, suspect_vpa, suspect_phone, suspect_bank_account, platform
 Complaint types: {COMPLAINT_TYPES}
 
-Example Input: "i am rohit my number is 76 and email is 67@gmail and i have issue with payemnt"
+Example Input: "My name is John, phone 9998887777, email john@ex.com. Details: I lost 500 dollars on Facebook yesterday 2026-03-31T15:00. The scammer's UPI was badguy@upi and transaction UTR123."
 Example Output JSON:
 {{
-  "assistant_response": "Thanks Rohit, I have your email and phone noted. To help with the payment issue, can you tell me which platform or app you used?",
+  "assistant_response": "Thanks John. I have recorded the details of the Facebook fraud and the money lost. Could you provide your physical address?",
   "intent": "file_complaint",
-  "field_updates": {{"full_name": "Rohit", "phone_number": "76", "email": "67@gmail", "description": "issue with payment", "complaint_type": "Financial Fraud"}},
-  "next_required_field": "platform",
-  "missing_fields": ["platform", "address", "date_time"]
+  "field_updates": {{"full_name": "John", "phone_number": "9998887777", "email": "john@ex.com", "amount_lost": "500", "platform": "Facebook", "date_time": "2026-03-31T15:00", "suspect_vpa": "badguy@upi", "transaction_id": "UTR123", "description": "Lost 500 dollars to a scammer", "complaint_type": "Social Media Fraud"}},
+  "next_required_field": "address",
+  "missing_fields": ["address"]
 }}
 
 Conversation:
@@ -214,17 +154,23 @@ Already collected:
 
 User said: "{user_message}"
 
-Return ONLY valid JSON, no extra text:
-"""
+        Return ONLY the JSON payload, no conversational filler or markdown markers:
+        """
         response_text = self._generate(prompt)
         payload = self._safe_json_parse(response_text or "")
+        
+        # If model failed to provide assistant_response in its JSON, ensure we have one
+        if payload and "assistant_response" not in payload:
+            payload["assistant_response"] = self.translate_text("What can I help you with?", user_language)
+            
         if not payload:
+            current_missing = [f for f in REQUIRED_COMPLAINT_FIELDS if f not in collected_fields]
             return {
-                "assistant_response": self.translate_text("What can I help you with?", user_language),
-                "intent": "general",
+                "assistant_response": self.translate_text("I'm sorry, I didn't quite catch that. Could you please repeat or elaborate?", user_language),
+                "intent": "file_complaint" if collected_fields else "general",
                 "field_updates": {},
-                "next_required_field": None,
-                "missing_fields": REQUIRED_COMPLAINT_FIELDS,
+                "next_required_field": current_missing[0] if current_missing else None,
+                "missing_fields": current_missing,
             }
         return payload
 

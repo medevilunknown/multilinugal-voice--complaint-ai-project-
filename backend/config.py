@@ -6,6 +6,7 @@ class Settings(BaseSettings):
 
     gemini_api_key: str
     database_url: str
+    use_ollama: bool = True
 
     smtp_email: str
     smtp_password: str

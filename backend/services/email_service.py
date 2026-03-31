@@ -13,10 +13,14 @@ class EmailService:
         message["To"] = receiver
         message.attach(MIMEText(html, "html"))
 
-        with smtplib.SMTP(settings.smtp_host, settings.smtp_port) as server:
-            server.starttls()
-            server.login(settings.smtp_email, settings.smtp_password)
-            server.sendmail(settings.smtp_email, receiver, message.as_string())
+        try:
+            with smtplib.SMTP(settings.smtp_host, settings.smtp_port) as server:
+                server.starttls()
+                server.login(settings.smtp_email, settings.smtp_password)
+                server.sendmail(settings.smtp_email, receiver, message.as_string())
+        except Exception as e:
+            import logging
+            logging.error(f"Failed to send email to {receiver}: {e}")
 
     def send_user_ticket_email(self, user_email: str, ticket_id: str, localized_summary: str) -> None:
         html = f"""

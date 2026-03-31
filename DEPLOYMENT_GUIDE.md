@@ -23,17 +23,17 @@ This guide provides step-by-step instructions for deploying the CyberGuard AI sy
 
 ### Required Services & APIs
 
-- [ ] Supabase Project
+- [ ] **Supabase Project**
   - Database created and running
   - API keys generated
   - Migrations applied
 
-- [ ] Gemini API (Optional, for AI features)
+- [ ] **Gemini API** (Optional, for AI features)
   - API key obtained from Google Cloud
   - API enabled in Google Cloud Console
   - Quota configured (recommended: 1000 requests/day minimum)
 
-- [ ] Ollama (Optional, for local LLM)
+- [ ] **Ollama** (Optional, for local LLM)
   - Installed and running locally or on separate server
   - Llama2 model downloaded
   - API accessible at configured URL

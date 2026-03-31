@@ -1,6 +1,6 @@
 {
-    "sqltools.connections": [],
-    "files.watcherExclude": {
-        "**/target": true
-    }
+    "python.defaultInterpreterPath": "./backend/.venv/bin/python",
+    "python.analysis.extraPaths": ["./backend"],
+    "python.analysis.indexing": true,
+    "python.languageServer": "Pylance"
 }

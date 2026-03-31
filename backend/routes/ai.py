@@ -30,7 +30,7 @@ def translate(payload: TranslateRequest):
 
 
 @router.post("/speech-to-text")
-def speech_to_text(file: UploadFile = File(...)):
+def speech_to_text(file: UploadFile = File(...), language: str = Form("English")):
     if not file.filename:
         raise HTTPException(status_code=400, detail="Invalid audio/video file")
 
@@ -39,13 +39,28 @@ def speech_to_text(file: UploadFile = File(...)):
         raise HTTPException(status_code=400, detail="Empty file")
 
     # Gemini accepts multimodal file parts. Save temp and analyze.
-    suffix = file.filename.split(".")[-1]
+    suffix = file.filename.split(".")[-1].lower()
     temp_path = f"/tmp/cyberguard_stt.{suffix}"
     with open(temp_path, "wb") as out:
         out.write(temp_bytes)
 
-    mime_type = file.content_type or mimetypes.guess_type(file.filename)[0] or "application/octet-stream"
-    text = gemini_service.transcribe_audio(temp_path, mime_type)
+    # Convert video to audio before sending to Gemini to avoid size limits
+    if suffix in ["mp4", "mov", "avi", "mkv"]:
+        from moviepy.editor import VideoFileClip
+        import logging
+        try:
+            audio_path = "/tmp/cyberguard_stt.mp3"
+            clip = VideoFileClip(temp_path)
+            clip.audio.write_audiofile(audio_path, logger=None)
+            temp_path = audio_path
+            mime_type = "audio/mpeg"
+        except Exception as e:
+            logging.error(f"Failed to extract audio using moviepy: {e}")
+            mime_type = file.content_type or mimetypes.guess_type(file.filename)[0] or "application/octet-stream"
+    else:
+        mime_type = file.content_type or mimetypes.guess_type(file.filename)[0] or "application/octet-stream"
+
+    text = gemini_service.transcribe_audio(temp_path, mime_type, language)
 
     return {"transcript": text}
 

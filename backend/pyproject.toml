@@ -1,0 +1,30 @@
+# Ruff configuration - fast Python linter & formatter
+# https://docs.astral.sh/ruff/
+
+[tool.ruff]
+target-version = "py311"
+line-length = 120
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "N",    # pep8-naming
+    "UP",   # pyupgrade
+    "B",    # flake8-bugbear
+    "SIM",  # flake8-simplify
+    "S",    # flake8-bandit (security)
+]
+ignore = [
+    "S101",  # allow assert in tests
+    "S105",  # allow hardcoded passwords (handled by env)
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["models", "routes", "services", "utils", "config", "database"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
