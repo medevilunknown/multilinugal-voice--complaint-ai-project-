@@ -7,6 +7,9 @@ class Settings(BaseSettings):
     gemini_api_key: str
     database_url: str
     use_ollama: bool = True
+    ollama_model: str = "llama3"
+    ollama_base_url: str = "http://localhost:11434"
+
 
     smtp_email: str
     smtp_password: str

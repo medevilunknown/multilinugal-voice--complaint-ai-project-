@@ -6,12 +6,14 @@ Uses a local Ollama instance (llama2) as a drop-in alternative to Gemini.
 import json
 import requests
 
+from config import settings
 from utils.constants import COMPLAINT_TYPES, REQUIRED_COMPLAINT_FIELDS, SUPPORTED_LANGUAGES
 
 
-OLLAMA_BASE_URL = "http://localhost:11434"
-# Prefer highly-trained/larger models first for better JSON reasoning; fall back to fast/smaller ones
-OLLAMA_MODEL_PREFERENCE = ["llama3", "mistral", "llama2", "phi3:mini", "phi3", "phi", "codellama"]
+OLLAMA_BASE_URL = settings.ollama_base_url
+# Prefer the user's configured model first
+OLLAMA_MODEL_PREFERENCE = [settings.ollama_model, "llama3", "mistral", "llama2", "phi3:mini", "phi3", "phi", "codellama"]
+
 
 
 class OllamaService:
