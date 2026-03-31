@@ -390,9 +390,14 @@ export async function sendChatMessage(
     if (messages.length <= 1) {
       return { response: "I can help you file a complaint. Please tell me what happened." };
     }
-    return { response: "I'm having trouble connecting to the AI. Please ensure you have added your Gemini API key in Settings if you are using the live version." };
+    
+    const backendUrl = `${BASE_URL}/chat`;
+    console.error(`Backend connection failed to ${backendUrl}:`, err);
+    
+    return { response: `I'm having trouble connecting to the local AI server at ${BASE_URL}. Please ensure your backend is running on this port.` };
   }
 }
+
 
 
 /** Convert audio/video to text using backend AI */

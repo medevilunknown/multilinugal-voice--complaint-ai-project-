@@ -4,6 +4,11 @@
 
 echo "🛡️ Starting Guardia Lingua Local Environment..."
 
+# 0. Clean up any stale processes on our ports
+echo "🧹 Cleaning up existing processes on 8000 and 8080..."
+lsof -ti:8000 | xargs kill -9 2>/dev/null || true
+lsof -ti:8080 | xargs kill -9 2>/dev/null || true
+
 # 1. Check if Ollama is running (optional but helpful)
 if ! curl -s http://localhost:11434/api/tags > /dev/null; then
   echo "⚠️  Note: Ollama is not detected on http://localhost:11434"
@@ -19,4 +24,5 @@ echo "✅ Backend starting on http://localhost:8000"
 echo "🚀 Starting Frontend on http://localhost:8080..."
 cd frontend
 npm run dev
+
 
