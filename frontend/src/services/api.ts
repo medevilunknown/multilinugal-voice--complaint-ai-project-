@@ -1,4 +1,5 @@
 const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+import { getGeminiResponse } from "./gemini";
 
 // ─── Types ──────────────────────────────────────────────────────────
 
@@ -310,6 +311,7 @@ export async function updateComplaintStatus(
   }
 }
 
+
 /** Send chat message to AI and get response */
 export async function sendChatMessage(
   messages: ChatMessage[],
@@ -317,6 +319,29 @@ export async function sendChatMessage(
 ): Promise<{ response: string; collected_fields?: Record<string, string> }> {
   const lastMsg = messages[messages.length - 1]?.content || "";
 
+  // ─── BYOK (Direct Frontend AI) ─────────────────────────
+  const personalKey = localStorage.getItem("custom_gemini_key");
+  const useManaged = localStorage.getItem("is_managed_ai") !== "false";
+
+  if (personalKey && !useManaged) {
+    try {
+      const chatHistory = messages.slice(0, -1).map(m => ({
+        role: (m.role === "assistant" ? "model" : "user") as "model" | "user",
+        parts: [{ text: m.content }]
+      }));
+      
+      const { response, collected_fields } = await getGeminiResponse([
+          ...chatHistory,
+          { role: "user" as const, parts: [{ text: lastMsg }] }
+      ]);
+      
+      return { response, collected_fields };
+    } catch (err) {
+      console.error("Direct Gemini Error:", err);
+    }
+  }
+
+  // ─── Backend AI Fallback ──────────────────────────────
   // Use a 3-minute timeout so slow local LLM (Ollama) has time to respond
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 180_000);
@@ -344,6 +369,7 @@ export async function sendChatMessage(
     return { response: "I'm having trouble connecting to the AI. Please try again." };
   }
 }
+
 /** Convert audio/video to text using backend AI */
 export async function speechToText(file: File, language: string = "English"): Promise<string> {
   const form = new FormData();

@@ -68,9 +68,11 @@ export const SettingsModal = () => {
             AI Preferences
           </DialogTitle>
           <DialogDescription>
-            Personalize your AI experience. Bring your own Gemini API key for uncapped usage.
+             Bring your own Gemini API key for uncapped usage. 
+             <span className="block mt-2 font-bold text-accent">🚀 New: Works without a backend if you provide your own key!</span>
           </DialogDescription>
         </DialogHeader>
+
 
         <div className="grid gap-6 py-6">
           {user && (
