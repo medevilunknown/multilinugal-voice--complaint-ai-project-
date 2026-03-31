@@ -19,8 +19,11 @@ fi
 echo "🛡️  Starting Backend on http://localhost:8000..."
 cd "$(pwd)/backend"
 source .venv/bin/activate
+echo "💾 Running database migrations..."
+python migrate.py
 python -m uvicorn main:app --port 8000 --reload > backend.log 2>&1 &
 BACKEND_PID=$!
+
 
 # Ensure backend stops if this script is killed
 trap "kill $BACKEND_PID; exit" INT TERM EXIT
