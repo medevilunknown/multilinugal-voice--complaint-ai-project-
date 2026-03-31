@@ -34,11 +34,14 @@ export const SettingsModal = () => {
   }, []);
 
   const handleSave = () => {
-    localStorage.setItem("custom_gemini_key", apiKey);
+    const trimmedKey = apiKey.trim();
+    localStorage.setItem("custom_gemini_key", trimmedKey);
     localStorage.setItem("is_managed_ai", String(useManaged));
     localStorage.setItem("custom_gemini_model", modelName);
+    setApiKey(trimmedKey);
     toast.success("AI Settings updated successfully!");
   };
+
 
   const handleLogout = async () => {
     await signOut();
