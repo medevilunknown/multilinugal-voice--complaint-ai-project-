@@ -4,7 +4,7 @@
 
 This guide shows how to integrate the new ID proof partial extraction handling into your React/TypeScript frontend.
 
-## Updated Component Flow
+## Updated Component Flow-
 
 ```
 ID Proof Upload
