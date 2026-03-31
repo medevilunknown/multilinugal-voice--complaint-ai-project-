@@ -1,0 +1,26 @@
+INFO:     Will watch for changes in these directories: ['/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend']
+INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [55957] using WatchFiles
+INFO:     Started server process [55960]
+INFO:     Waiting for application startup.
+[ollama] Available models: ['llama3:latest', 'phi3:mini', 'llama2:latest', 'codellama:latest']
+[ollama] Selected model: llama3:latest
+2026-03-31 21:51:54 | INFO     | cyberguard:main:lifespan:35 — CyberGuard AI backend started successfully
+INFO:     Application startup complete.
+INFO:     127.0.0.1:62520 - "OPTIONS /complaint/create HTTP/1.1" 200 OK
+INFO:     127.0.0.1:62520 - "POST /complaint/create HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:62554 - "POST /complaint/create HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:62554 - "POST /complaint/create HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:62554 - "POST /complaint/create HTTP/1.1" 422 Unprocessable Entity
+WARNING:  WatchFiles detected changes in 'services/validation_service.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+2026-03-31 21:55:42 | INFO     | cyberguard:main:lifespan:38 — CyberGuard AI backend shutting down
+INFO:     Application shutdown complete.
+INFO:     Finished server process [55960]
+INFO:     Started server process [56105]
+INFO:     Waiting for application startup.
+[ollama] Available models: ['llama3:latest', 'phi3:mini', 'llama2:latest', 'codellama:latest']
+[ollama] Selected model: llama3:latest
+2026-03-31 21:55:44 | INFO     | cyberguard:main:lifespan:35 — CyberGuard AI backend started successfully
+INFO:     Application startup complete.

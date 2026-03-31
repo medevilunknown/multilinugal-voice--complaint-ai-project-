@@ -5,7 +5,8 @@ from email_validator import validate_email, EmailNotValidError
 from utils.constants import COMPLAINT_TYPES, REQUIRED_COMPLAINT_FIELDS
 
 
-PHONE_RE = re.compile(r"^(\+91|91)?[6-9]\d{9}$")
+# Use a more inclusive regex for international/local formats (10-15 digits)
+PHONE_RE = re.compile(r"^\+?\d{10,15}$")
 UTR_RE = re.compile(r"^[A-Za-z0-9\-]{8,30}$")
 SIMPLE_EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
@@ -19,8 +20,10 @@ class ValidationService:
         return missing
 
     def validate_phone(self, phone: str) -> bool:
-        clean = phone.replace(" ", "")
+        # Strip everything except digits and the leading +
+        clean = re.sub(r"[^\d+]", "", phone)
         return bool(PHONE_RE.match(clean))
+
 
     def validate_email(self, email: str) -> bool:
         try:

@@ -379,12 +379,23 @@ export async function sendChatMessage(
         return { response, collected_fields };
       } catch (innerErr: any) {
          console.error("Failover AI failed:", innerErr.message);
-         return { response: `Direct AI Error: ${innerErr.message}. Please check your Gemini API key.` };
+         // If it's a validation error, we fall through to the detail check below
+         if (err?.detail) {
+           console.log("Validation error detected, skipping AI failover");
+         } else {
+           return { response: `Direct AI Error: ${innerErr.message}. Please check your Gemini API key.` };
+         }
+
       }
     }
 
+    if (err?.detail && Array.isArray(err.detail)) {
+       return { response: `Validation Error: ${err.detail.join(", ")}` };
+    }
 
+    
     if (err?.name === "AbortError") {
+
       return { response: "The AI is taking longer than usual. Please try again in a moment." };
     }
     if (messages.length <= 1) {
