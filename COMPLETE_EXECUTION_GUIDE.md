@@ -18,12 +18,26 @@ chmod +x deploy_backend.sh
 ./deploy_backend.sh
 ```
 
+## 💻 Local Development (Ollama)
+If you want to run the full platform locally on your Mac:
+1. **Pull the Model**:
+   ```zsh
+   ollama pull aiasistentworld/GLM-4.5-Air-LLM
+   ```
+2. **Start the Platform**:
+   ```zsh
+   ./RUN_LOCAL_MACOS.sh
+   ```
+3. **Customize AI**: Edit `backend/.env` and change `OLLAMA_MODEL` to your preferred model.
+
 ## ✅ Completed Features
 - **Real Google Social Login** (via Supabase)
 - **BYOK (Bring Your Own Key)** support
 - **Serverless AI Mode** (Direct Browser-to-Gemini)
-- **Vercel Monorepo Fixes**
+- **Local Ollama Support** (Optimized for GLM-4.5)
+- **Auto-Database Migrations**
 - **Zero Lint Errors**
 
 ---
 *Created with ❤️ by Antigravity*
+
