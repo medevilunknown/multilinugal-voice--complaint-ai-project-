@@ -319,11 +319,15 @@ export async function sendChatMessage(
 ): Promise<{ response: string; collected_fields?: Record<string, string> }> {
   const lastMsg = messages[messages.length - 1]?.content || "";
 
-  // ─── BYOK (Direct Frontend AI) ─────────────────────────
+  // ─── AI Routing Strategy ──────────────────────────────
   const personalKey = localStorage.getItem("custom_gemini_key");
   const useManaged = localStorage.getItem("is_managed_ai") !== "false";
+  const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
 
-  if (personalKey && !useManaged) {
+  
+  // Only use personal key first if we are NOT on localhost OR if the user manually opted in.
+  // This prevents invalid browser-saved keys from breaking local Ollama testing.
+  if (personalKey && !useManaged && !isLocal) {
     try {
       const chatHistory = messages.slice(0, -1).map(m => ({
         role: (m.role === "assistant" ? "model" : "user") as "model" | "user",
@@ -337,9 +341,10 @@ export async function sendChatMessage(
       
       return { response, collected_fields };
     } catch (err) {
-      console.error("Direct Gemini Error:", err);
+      console.error("Direct Gemini (Failover) failed:", err);
     }
   }
+
 
   // ─── Backend AI Fallback ──────────────────────────────
   const controller = new AbortController();
