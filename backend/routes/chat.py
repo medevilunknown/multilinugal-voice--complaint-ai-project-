@@ -5,9 +5,10 @@ from sqlalchemy.orm import Session
 
 from config import settings
 from database import get_db
+from models.user import User
 from schemas.chat import ChatRequest, ChatResponse
 from services.conversation_service import conversation_service
-from services.gemini_service import gemini_service
+from services.gemini_service import gemini_service, GeminiService
 from services.ollama_service import ollama_service
 from services.translation_service import translation_service
 from utils.constants import REQUIRED_COMPLAINT_FIELDS, SUPPORTED_LANGUAGES, UNKNOWN_INPUT_HINTS
@@ -20,8 +21,21 @@ router = APIRouter(prefix="/chat", tags=["Chat"])
 @limiter.limit("10/minute")
 async def chat_with_assistant(request: Request, payload: ChatRequest, db: Session = Depends(get_db)):
     import asyncio
+    
+    # Simple user lookup via header for simulation (will be replaced by Auth token)
+    user_email = request.headers.get("X-User-Email")
+    current_user = None
+    if user_email:
+        current_user = db.query(User).filter(User.email == user_email).first()
+        if not current_user:
+            # Auto-register user for simulation
+            current_user = User(email=user_email, name="Google User")
+            db.add(current_user)
+            db.commit()
+            db.refresh(current_user)
 
     session = conversation_service.get_or_create(db, payload.session_id)
+
 
     if not payload.language and not session.messages:
         supported = ", ".join(SUPPORTED_LANGUAGES)
@@ -63,10 +77,17 @@ async def chat_with_assistant(request: Request, payload: ChatRequest, db: Sessio
             llm_payload = None
 
     if llm_payload is None:
-        print("[chat] Routing to Google Gemini Cloud API ...")
+        print("[chat] Routing to Google Gemini API ...")
+        
+        # Determine which Gemini service to use (Managed vs Personal)
+        active_gemini = gemini_service
+        if current_user and not current_user.is_managed_ai and current_user.custom_gemini_key:
+            print(f"[chat] Using PERSONAL API KEY for user: {current_user.email}")
+            active_gemini = GeminiService.create_with_key(current_user.custom_gemini_key)
+            
         try:
             llm_payload = await asyncio.to_thread(
-                gemini_service.generate_complaint_chat_reply,
+                active_gemini.generate_complaint_chat_reply,
                 language,
                 payload.message,
                 session.messages,

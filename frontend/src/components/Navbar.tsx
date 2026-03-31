@@ -1,8 +1,10 @@
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { Menu, X, User } from "lucide-react";
 import { LANGUAGES, useLanguage } from "@/contexts/LanguageContext";
 import { useState } from "react";
 import BrandLogo from "@/components/BrandLogo";
+import SettingsModal from "@/components/SettingsModal";
+import { Button } from "@/components/ui/button";
 
 export default function Navbar() {
   const { t, language, setLanguage } = useLanguage();
@@ -39,7 +41,7 @@ export default function Navbar() {
           </div>
         </Link>
 
-        {/* Desktop links + languages (same line) */}
+        {/* Desktop links + settings + languages */}
         <div className="hidden md:flex items-center gap-2 min-w-0">
           {visibleLinks.map((link) => (
             <Link
@@ -55,46 +57,57 @@ export default function Navbar() {
             </Link>
           ))}
 
-          {showLanguageRow && (
-            <div className="relative ml-1 pl-2 border-l border-primary-foreground/15">
-              <button
-                onClick={() => setLanguageOpen((prev) => !prev)}
-                className="px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-150 text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10"
-              >
-                {t("language")}: {language.nativeName}
-              </button>
-              {languageOpen && (
-                <div className="absolute right-0 mt-2 w-52 max-h-56 overflow-y-auto rounded-md border border-primary-foreground/20 bg-primary shadow-xl z-50">
-                  {LANGUAGES.map((lang) => (
-                    <button
-                      key={lang.code}
-                      onClick={() => {
-                        setLanguage(lang);
-                        setLanguageOpen(false);
-                      }}
-                      className={`w-full text-left px-3 py-2 text-sm transition-all
-                        ${language.code === lang.code
-                          ? "bg-accent text-accent-foreground"
-                          : "text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10"
-                        }`}
-                    >
-                      {lang.nativeName}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+          <div className="flex items-center gap-1 ml-1 pl-2 border-l border-primary-foreground/15">
+            <SettingsModal />
+            
+            {showLanguageRow && (
+              <div className="relative">
+                <button
+                  onClick={() => setLanguageOpen((prev) => !prev)}
+                  className="px-3 py-1.5 rounded-md text-sm font-medium transition-all duration-150 text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10"
+                >
+                  {t("language")}: {language.nativeName}
+                </button>
+                {languageOpen && (
+                  <div className="absolute right-0 mt-2 w-52 max-h-56 overflow-y-auto rounded-md border border-primary-foreground/20 bg-primary shadow-xl z-50">
+                    {LANGUAGES.map((lang) => (
+                      <button
+                        key={lang.code}
+                        onClick={() => {
+                          setLanguage(lang);
+                          setLanguageOpen(false);
+                        }}
+                        className={`w-full text-left px-3 py-2 text-sm transition-all
+                          ${language.code === lang.code
+                            ? "bg-accent text-accent-foreground"
+                            : "text-primary-foreground/80 hover:text-primary-foreground hover:bg-primary-foreground/10"
+                          }`}
+                      >
+                        {lang.nativeName}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
 
+          <Button variant="outline" size="sm" className="ml-2 bg-transparent border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10 hidden lg:flex items-center gap-2">
+            <User className="h-4 w-4" />
+            Sign In
+          </Button>
         </div>
 
         {/* Mobile toggle */}
-        <button
-          className="md:hidden p-2"
-          onClick={() => setMobileOpen(!mobileOpen)}
-        >
-          {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-        </button>
+        <div className="flex items-center gap-2 md:hidden">
+           <SettingsModal />
+           <button
+            className="p-2"
+            onClick={() => setMobileOpen(!mobileOpen)}
+          >
+            {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile menu */}

@@ -8,9 +8,16 @@ from utils.constants import COMPLAINT_TYPES, REQUIRED_COMPLAINT_FIELDS, SUPPORTE
 
 
 class GeminiService:
-    def __init__(self) -> None:
-        genai.configure(api_key=settings.gemini_api_key)
+    def __init__(self, api_key: str = None) -> None:
+        self.api_key = api_key or settings.gemini_api_key
+        genai.configure(api_key=self.api_key)
         self.model = genai.GenerativeModel(self._pick_model_name())
+
+    @classmethod
+    def create_with_key(cls, api_key: str):
+        """Create a transient service instance for a specific user's API key."""
+        return cls(api_key=api_key)
+
 
     def _pick_model_name(self) -> str:
         preferred = [

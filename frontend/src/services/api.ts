@@ -120,6 +120,8 @@ function adminAuthHeaders() {
 
 async function fetchJson<T>(url: string, options?: RequestInit): Promise<T> {
   const hasFormDataBody = options?.body instanceof FormData;
+  const userEmail = localStorage.getItem("userEmail") || "";
+  
   const headers: Record<string, string> = {
     ...(options?.headers as Record<string, string> | undefined),
   };
@@ -127,11 +129,16 @@ async function fetchJson<T>(url: string, options?: RequestInit): Promise<T> {
   if (!hasFormDataBody) {
     headers["Content-Type"] = "application/json";
   }
+  
+  if (userEmail) {
+    headers["X-User-Email"] = userEmail;
+  }
 
   const response = await fetch(url, {
     ...options,
     headers,
   });
+
 
   if (!response.ok) {
     const body = await response.text();
