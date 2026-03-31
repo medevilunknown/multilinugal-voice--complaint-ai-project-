@@ -39,18 +39,23 @@ function AppLayout() {
   );
 }
 
+import { AuthProvider } from "@/contexts/AuthContext";
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <LanguageProvider>
-        <BrowserRouter>
-          <AppLayout />
-        </BrowserRouter>
-      </LanguageProvider>
+      <AuthProvider>
+        <LanguageProvider>
+          <BrowserRouter>
+            <AppLayout />
+          </BrowserRouter>
+        </LanguageProvider>
+      </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>
 );
+
 
 export default App;

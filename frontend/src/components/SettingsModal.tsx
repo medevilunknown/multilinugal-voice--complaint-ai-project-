@@ -15,28 +15,19 @@ import { Settings, Key, User, Shield } from "lucide-react";
 import { toast } from "sonner";
 
 import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const SettingsModal = () => {
   const [apiKey, setApiKey] = useState("");
   const [useManaged, setUseManaged] = useState(true);
-  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const { user, signOut } = useAuth();
 
   // Load preferences from localStorage on mount
   useEffect(() => {
     const savedKey = localStorage.getItem("custom_gemini_key") || "";
     const savedManaged = localStorage.getItem("is_managed_ai") !== "false";
-    const savedEmail = localStorage.getItem("userEmail");
     setApiKey(savedKey);
     setUseManaged(savedManaged);
-    setUserEmail(savedEmail);
-
-    // Sync from Supabase if possible
-    supabase.auth.getSession().then(({ data: { session } }) => {
-       if (session?.user?.email) {
-          setUserEmail(session.user.email);
-          localStorage.setItem("userEmail", session.user.email);
-       }
-    });
   }, []);
 
   const handleSave = () => {
@@ -54,20 +45,14 @@ export const SettingsModal = () => {
     });
     if (error) {
       toast.error("Auth failed: " + error.message);
-      // Fallback for simulation if keys missing
-      const mockEmail = "user@example.com";
-      localStorage.setItem("userEmail", mockEmail);
-      setUserEmail(mockEmail);
     }
   };
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    await signOut();
     localStorage.removeItem("userEmail");
-    setUserEmail(null);
     toast.info("Logged out");
   };
-
 
   return (
     <Dialog>
@@ -88,11 +73,11 @@ export const SettingsModal = () => {
         </DialogHeader>
 
         <div className="grid gap-6 py-6">
-          {userEmail && (
+          {user && (
             <div className="flex items-center justify-between p-3 bg-secondary/10 rounded-lg border border-secondary/20 border-dashed">
               <div className="flex items-center gap-2">
                 <User className="h-4 w-4 text-secondary-foreground" />
-                <span className="text-sm font-medium">{userEmail}</span>
+                <span className="text-sm font-medium">{user.email}</span>
               </div>
               <Button variant="ghost" size="sm" onClick={handleLogout} className="h-7 text-[10px]">
                 Sign Out
@@ -137,7 +122,7 @@ export const SettingsModal = () => {
               <Button onClick={handleSave} className="w-full">
                 Save Preferences
               </Button>
-              {!userEmail && (
+              {!user && (
                 <Button variant="outline" onClick={handleLogin} className="w-full flex items-center gap-2">
                   <User className="h-4 w-4" />
                   Sign in with Google

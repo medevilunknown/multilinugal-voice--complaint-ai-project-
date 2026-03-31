@@ -1,13 +1,16 @@
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, User } from "lucide-react";
+import { Menu, X, User, Settings } from "lucide-react";
 import { LANGUAGES, useLanguage } from "@/contexts/LanguageContext";
 import { useState } from "react";
 import BrandLogo from "@/components/BrandLogo";
 import SettingsModal from "@/components/SettingsModal";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function Navbar() {
   const { t, language, setLanguage } = useLanguage();
+  const { user, signOut } = useAuth();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [languageOpen, setLanguageOpen] = useState(false);
@@ -92,10 +95,27 @@ export default function Navbar() {
             )}
           </div>
 
-          <Button variant="outline" size="sm" className="ml-2 bg-transparent border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10 hidden lg:flex items-center gap-2">
-            <User className="h-4 w-4" />
-            Sign In
-          </Button>
+          <div className="ml-2">
+            {user ? (
+               <div className="flex items-center gap-3">
+                 <div className="text-right hidden lg:block">
+                   <div className="text-xs font-bold leading-none">{user.user_metadata?.full_name || user.email?.split('@')[0]}</div>
+                   <div className="text-[10px] text-primary-foreground/60 leading-tight">Identity Synced</div>
+                 </div>
+                 <Avatar className="h-8 w-8 border-2 border-primary-foreground/20">
+                   <AvatarImage src={user.user_metadata?.avatar_url} />
+                   <AvatarFallback className="bg-accent text-accent-foreground text-xs uppercase">
+                     {user.email?.charAt(0)}
+                   </AvatarFallback>
+                 </Avatar>
+               </div>
+            ) : (
+                <Button variant="outline" size="sm" className="bg-transparent border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10 hidden lg:flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  Sign In
+                </Button>
+            )}
+          </div>
         </div>
 
         {/* Mobile toggle */}
