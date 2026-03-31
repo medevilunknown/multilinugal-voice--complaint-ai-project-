@@ -55,27 +55,33 @@ export async function getGeminiResponse(
     ],
   });
 
-  const lastMessage = chatHistory[chatHistory.length - 1].parts[0].text;
-  const result = await chat.sendMessage(lastMessage);
-  const response = await result.response;
-  const text = response.text();
+  try {
+    const lastMessage = chatHistory[chatHistory.length - 1].parts[0].text;
+    const result = await chat.sendMessage(lastMessage);
+    const response = await result.response;
+    const text = response.text();
 
-  // Extract JSON fields if present
-  let collectedFields: Record<string, string> = {};
-  const jsonMatch = text.match(/\[JSON_FIELDS\](.*?)\[\/JSON_FIELDS\]/s);
-  if (jsonMatch) {
-    try {
-      collectedFields = JSON.parse(jsonMatch[1].trim());
-    } catch (e) {
-      console.error("Failed to parse extracted fields", e);
+    // Extract JSON fields if present
+    let collectedFields: Record<string, string> = {};
+    const jsonMatch = text.match(/\[JSON_FIELDS\](.*?)\[\/JSON_FIELDS\]/s);
+    if (jsonMatch) {
+      try {
+        collectedFields = JSON.parse(jsonMatch[1].trim());
+      } catch (e) {
+        console.error("Failed to parse extracted fields", e);
+      }
     }
+
+    // Clean the text of the hidden JSON block for display
+    const cleanedText = text.replace(/\[JSON_FIELDS\].*?\[\/JSON_FIELDS\]/s, "").trim();
+
+    return {
+      response: cleanedText,
+      collected_fields: collectedFields,
+    };
+  } catch (err: any) {
+    console.error("Gemini SDK Error:", err);
+    throw new Error(err.message || "Gemini AI failed to respond.");
   }
-
-  // Clean the text of the hidden JSON block for display
-  const cleanedText = text.replace(/\[JSON_FIELDS\].*?\[\/JSON_FIELDS\]/s, "").trim();
-
-  return {
-    response: cleanedText,
-    collected_fields: collectedFields,
-  };
 }
+

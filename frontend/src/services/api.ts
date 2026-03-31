@@ -372,10 +372,12 @@ export async function sendChatMessage(
             { role: "user" as const, parts: [{ text: lastMsg }] }
         ]);
         return { response, collected_fields };
-      } catch (innerErr) {
-         console.error("Failover AI also failed:", innerErr);
+      } catch (innerErr: any) {
+         console.error("Failover AI failed:", innerErr.message);
+         return { response: `Direct AI Error: ${innerErr.message}. Please check your Gemini API key.` };
       }
     }
+
 
     if (err?.name === "AbortError") {
       return { response: "The AI is taking longer than usual. Please try again in a moment." };
