@@ -1,26 +1,259 @@
 INFO:     Will watch for changes in these directories: ['/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend']
 INFO:     Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
-INFO:     Started reloader process [55957] using WatchFiles
-INFO:     Started server process [55960]
+INFO:     Started reloader process [56471] using WatchFiles
+INFO:     Started server process [56474]
 INFO:     Waiting for application startup.
 [ollama] Available models: ['llama3:latest', 'phi3:mini', 'llama2:latest', 'codellama:latest']
 [ollama] Selected model: llama3:latest
-2026-03-31 21:51:54 | INFO     | cyberguard:main:lifespan:35 — CyberGuard AI backend started successfully
+2026-03-31 21:57:15 | INFO     | cyberguard:main:lifespan:35 — CyberGuard AI backend started successfully
 INFO:     Application startup complete.
-INFO:     127.0.0.1:62520 - "OPTIONS /complaint/create HTTP/1.1" 200 OK
-INFO:     127.0.0.1:62520 - "POST /complaint/create HTTP/1.1" 422 Unprocessable Entity
-INFO:     127.0.0.1:62554 - "POST /complaint/create HTTP/1.1" 422 Unprocessable Entity
-INFO:     127.0.0.1:62554 - "POST /complaint/create HTTP/1.1" 422 Unprocessable Entity
-INFO:     127.0.0.1:62554 - "POST /complaint/create HTTP/1.1" 422 Unprocessable Entity
-WARNING:  WatchFiles detected changes in 'services/validation_service.py'. Reloading...
+INFO:     127.0.0.1:63315 - "POST /complaint/create HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:63315 - "POST /complaint/create HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:63465 - "POST /complaint/create HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:63465 - "POST /complaint/create HTTP/1.1" 422 Unprocessable Entity
+INFO:     127.0.0.1:63516 - "POST /complaint/create HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 941, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.OperationalError: no such column: users.google_id
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/uvicorn/protocols/http/httptools_impl.py", line 401, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/uvicorn/middleware/proxy_headers.py", line 70, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/fastapi/applications.py", line 1054, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/starlette/applications.py", line 113, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 187, in __call__
+    raise exc
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 165, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/starlette/middleware/cors.py", line 93, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/starlette/middleware/cors.py", line 144, in simple_response
+    await self.app(scope, receive, send)
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 62, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 62, in wrapped_app
+    raise exc
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 51, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/starlette/routing.py", line 715, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/starlette/routing.py", line 735, in app
+    await route.handle(scope, receive, send)
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/starlette/routing.py", line 288, in handle
+    await self.app(scope, receive, send)
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/starlette/routing.py", line 76, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 62, in wrapped_app
+    raise exc
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 51, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/starlette/routing.py", line 73, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 301, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 214, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/starlette/concurrency.py", line 39, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func, *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/anyio/to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/routes/complaint.py", line 30, in create_complaint
+    user = complaint_service.upsert_user(db, payload)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/services/complaint_service.py", line 11, in upsert_user
+    user = db.query(User).filter(User.email == payload.email).first()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/sqlalchemy/orm/query.py", line 2728, in first
+    return self.limit(1)._iter().first()  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/sqlalchemy/orm/query.py", line 2827, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+                                                  ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2362, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2247, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/sqlalchemy/orm/context.py", line 305, in orm_execute_statement
+    result = conn.execute(
+             ^^^^^^^^^^^^^
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1418, in execute
+    return meth(
+           ^^^^^
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 515, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1640, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 2355, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 941, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such column: users.google_id
+[SQL: SELECT users.id AS users_id, users.name AS users_name, users.email AS users_email, users.phone AS users_phone, users.address AS users_address, users.google_id AS users_google_id, users.custom_gemini_key AS users_custom_gemini_key, users.is_managed_ai AS users_is_managed_ai 
+FROM users 
+WHERE users.email = ?
+ LIMIT ? OFFSET ?]
+[parameters: ('rohitkumargond129@gmail.com', 1, 0)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+INFO:     127.0.0.1:63523 - "POST /complaint/create HTTP/1.1" 500 Internal Server Error
+ERROR:    Exception in ASGI application
+Traceback (most recent call last):
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 941, in do_execute
+    cursor.execute(statement, parameters)
+sqlite3.OperationalError: no such column: users.google_id
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/uvicorn/protocols/http/httptools_impl.py", line 401, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/uvicorn/middleware/proxy_headers.py", line 70, in __call__
+    return await self.app(scope, receive, send)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/fastapi/applications.py", line 1054, in __call__
+    await super().__call__(scope, receive, send)
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/starlette/applications.py", line 113, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 187, in __call__
+    raise exc
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/starlette/middleware/errors.py", line 165, in __call__
+    await self.app(scope, receive, _send)
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/starlette/middleware/cors.py", line 93, in __call__
+    await self.simple_response(scope, receive, send, request_headers=headers)
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/starlette/middleware/cors.py", line 144, in simple_response
+    await self.app(scope, receive, send)
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/starlette/middleware/exceptions.py", line 62, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 62, in wrapped_app
+    raise exc
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 51, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/starlette/routing.py", line 715, in __call__
+    await self.middleware_stack(scope, receive, send)
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/starlette/routing.py", line 735, in app
+    await route.handle(scope, receive, send)
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/starlette/routing.py", line 288, in handle
+    await self.app(scope, receive, send)
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/starlette/routing.py", line 76, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 62, in wrapped_app
+    raise exc
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/starlette/_exception_handler.py", line 51, in wrapped_app
+    await app(scope, receive, sender)
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/starlette/routing.py", line 73, in app
+    response = await f(request)
+               ^^^^^^^^^^^^^^^^
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 301, in app
+    raw_response = await run_endpoint_function(
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/fastapi/routing.py", line 214, in run_endpoint_function
+    return await run_in_threadpool(dependant.call, **values)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/starlette/concurrency.py", line 39, in run_in_threadpool
+    return await anyio.to_thread.run_sync(func, *args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/anyio/to_thread.py", line 63, in run_sync
+    return await get_async_backend().run_sync_in_worker_thread(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 2518, in run_sync_in_worker_thread
+    return await future
+           ^^^^^^^^^^^^
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/anyio/_backends/_asyncio.py", line 1002, in run
+    result = context.run(func, *args)
+             ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/routes/complaint.py", line 30, in create_complaint
+    user = complaint_service.upsert_user(db, payload)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/services/complaint_service.py", line 11, in upsert_user
+    user = db.query(User).filter(User.email == payload.email).first()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/sqlalchemy/orm/query.py", line 2728, in first
+    return self.limit(1)._iter().first()  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/sqlalchemy/orm/query.py", line 2827, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+                                                  ^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2362, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2247, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/sqlalchemy/orm/context.py", line 305, in orm_execute_statement
+    result = conn.execute(
+             ^^^^^^^^^^^^^
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1418, in execute
+    return meth(
+           ^^^^^
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 515, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1640, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1846, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1986, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 2355, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1967, in _exec_single_context
+    self.dialect.do_execute(
+  File "/Users/rohitkunjam/Downloads/guardia-lingua-main 2/backend/.venv/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 941, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) no such column: users.google_id
+[SQL: SELECT users.id AS users_id, users.name AS users_name, users.email AS users_email, users.phone AS users_phone, users.address AS users_address, users.google_id AS users_google_id, users.custom_gemini_key AS users_custom_gemini_key, users.is_managed_ai AS users_is_managed_ai 
+FROM users 
+WHERE users.email = ?
+ LIMIT ? OFFSET ?]
+[parameters: ('rohitkumargond129@gmail.com', 1, 0)]
+(Background on this error at: https://sqlalche.me/e/20/e3q8)
+WARNING:  WatchFiles detected changes in 'migrate.py'. Reloading...
 INFO:     Shutting down
 INFO:     Waiting for application shutdown.
-2026-03-31 21:55:42 | INFO     | cyberguard:main:lifespan:38 — CyberGuard AI backend shutting down
+2026-03-31 22:00:20 | INFO     | cyberguard:main:lifespan:38 — CyberGuard AI backend shutting down
 INFO:     Application shutdown complete.
-INFO:     Finished server process [55960]
-INFO:     Started server process [56105]
+INFO:     Finished server process [56474]
+INFO:     Started server process [56639]
 INFO:     Waiting for application startup.
 [ollama] Available models: ['llama3:latest', 'phi3:mini', 'llama2:latest', 'codellama:latest']
 [ollama] Selected model: llama3:latest
-2026-03-31 21:55:44 | INFO     | cyberguard:main:lifespan:35 — CyberGuard AI backend started successfully
+2026-03-31 22:00:22 | INFO     | cyberguard:main:lifespan:35 — CyberGuard AI backend started successfully
 INFO:     Application startup complete.
