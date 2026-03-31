@@ -20,32 +20,24 @@ import { useAuth } from "@/contexts/AuthContext";
 export const SettingsModal = () => {
   const [apiKey, setApiKey] = useState("");
   const [useManaged, setUseManaged] = useState(true);
+  const [modelName, setModelName] = useState("gemini-1.5-flash");
   const { user, signOut } = useAuth();
 
   // Load preferences from localStorage on mount
   useEffect(() => {
     const savedKey = localStorage.getItem("custom_gemini_key") || "";
     const savedManaged = localStorage.getItem("is_managed_ai") !== "false";
+    const savedModel = localStorage.getItem("custom_gemini_model") || "gemini-1.5-flash";
     setApiKey(savedKey);
     setUseManaged(savedManaged);
+    setModelName(savedModel);
   }, []);
 
   const handleSave = () => {
     localStorage.setItem("custom_gemini_key", apiKey);
     localStorage.setItem("is_managed_ai", String(useManaged));
+    localStorage.setItem("custom_gemini_model", modelName);
     toast.success("AI Settings updated successfully!");
-  };
-
-  const handleLogin = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: window.location.origin
-      }
-    });
-    if (error) {
-      toast.error("Auth failed: " + error.message);
-    }
   };
 
   const handleLogout = async () => {
@@ -69,12 +61,12 @@ export const SettingsModal = () => {
           </DialogTitle>
           <DialogDescription>
              Bring your own Gemini API key for uncapped usage. 
-             <span className="block mt-2 font-bold text-accent">🚀 New: Works without a backend if you provide your own key!</span>
+             <span className="block mt-2 font-bold text-accent">🚀 Works without a backend if you provide your own key!</span>
           </DialogDescription>
         </DialogHeader>
 
 
-        <div className="grid gap-6 py-6">
+        <div className="grid gap-6 py-4">
           {user && (
             <div className="flex items-center justify-between p-3 bg-secondary/10 rounded-lg border border-secondary/20 border-dashed">
               <div className="flex items-center gap-2">
@@ -116,6 +108,19 @@ export const SettingsModal = () => {
                   className="font-mono text-sm"
                 />
               </div>
+
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold">Model Version</Label>
+                <select 
+                  value={modelName}
+                  onChange={(e) => setModelName(e.target.value)}
+                  className="w-full h-10 px-3 py-2 text-sm bg-background border border-input rounded-md ring-offset-background outline-none"
+                >
+                  <option value="gemini-1.5-flash">Gemini 1.5 Flash (Recommended)</option>
+                  <option value="gemini-1.5-pro">Gemini 1.5 Pro</option>
+                  <option value="gemini-2.0-flash-exp">Gemini 2.0 Flash (Next Gen)</option>
+                </select>
+              </div>
             </div>
           )}
 
@@ -124,12 +129,6 @@ export const SettingsModal = () => {
               <Button onClick={handleSave} className="w-full">
                 Save Preferences
               </Button>
-              {!user && (
-                <Button variant="outline" onClick={handleLogin} className="w-full flex items-center gap-2">
-                  <User className="h-4 w-4" />
-                  Sign in with Google
-                </Button>
-              )}
             </div>
           </div>
         </div>
@@ -139,3 +138,4 @@ export const SettingsModal = () => {
 };
 
 export default SettingsModal;
+

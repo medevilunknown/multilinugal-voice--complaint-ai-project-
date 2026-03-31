@@ -27,21 +27,21 @@ At the end of every response, you MUST provide a hidden JSON block if any fields
 Format: [JSON_FIELDS] {"fullName": "...", "incidentType": "...", ...} [/JSON_FIELDS]
 `;
 
-export function initGemini(apiKey: string) {
+export function initGemini(apiKey: string, modelName: string = "gemini-1.5-flash") {
   genAI = new GoogleGenerativeAI(apiKey);
-  // Defaulting to 1.5 Flash which is the most reliable for this use case
-  model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+  model = genAI.getGenerativeModel({ model: modelName });
 }
-
 
 export async function getGeminiResponse(
   chatHistory: { role: "user" | "model"; parts: { text: string }[] }[]
 ) {
   if (!model) {
     const apiKey = localStorage.getItem("custom_gemini_key");
+    const modelName = localStorage.getItem("custom_gemini_model") || "gemini-1.5-flash";
     if (!apiKey) throw new Error("No API key available");
-    initGemini(apiKey);
+    initGemini(apiKey, modelName);
   }
+
 
   const chat = model.startChat({
     history: [
