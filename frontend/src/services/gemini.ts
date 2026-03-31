@@ -28,9 +28,12 @@ Format: [JSON_FIELDS] {"fullName": "...", "incidentType": "...", ...} [/JSON_FIE
 `;
 
 export function initGemini(apiKey: string, modelName: string = "gemini-1.5-flash") {
+  // Use the v1 API for stable models, especially if v1beta fails
   genAI = new GoogleGenerativeAI(apiKey);
-  model = genAI.getGenerativeModel({ model: modelName });
+  model = genAI.getGenerativeModel({ model: modelName }, { apiVersion: 'v1' });
 }
+
+
 
 export async function getGeminiResponse(
   chatHistory: { role: "user" | "model"; parts: { text: string }[] }[]
