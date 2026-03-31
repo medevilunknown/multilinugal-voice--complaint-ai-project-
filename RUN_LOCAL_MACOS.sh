@@ -26,11 +26,10 @@ BACKEND_PID=$!
 trap "kill $BACKEND_PID; exit" INT TERM EXIT
 
 echo "✅ Backend PID: $BACKEND_PID (Logs: backend/backend.log)"
+echo "⏳ Waiting 3 seconds for backend to initialize..."
+sleep 3
 
 # 3. Start Frontend in the foreground
 echo "🚀 Starting Frontend on http://localhost:8080..."
 cd ../frontend
 npm run dev
-
-
-
