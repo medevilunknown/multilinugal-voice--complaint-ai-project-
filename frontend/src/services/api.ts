@@ -342,7 +342,6 @@ export async function sendChatMessage(
   }
 
   // ─── Backend AI Fallback ──────────────────────────────
-  // Use a 3-minute timeout so slow local LLM (Ollama) has time to respond
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 180_000);
 
@@ -360,15 +359,34 @@ export async function sendChatMessage(
     return { response: response.response, collected_fields: response.collected_fields };
   } catch (err: any) {
     clearTimeout(timeoutId);
+    
+    // SMART FAILOVER: If backend fails but we have a personal key, try it!
+    if (personalKey) {
+      try {
+        const chatHistory = messages.slice(0, -1).map(m => ({
+          role: (m.role === "assistant" ? "model" : "user") as "model" | "user",
+          parts: [{ text: m.content }]
+        }));
+        const { response, collected_fields } = await getGeminiResponse([
+            ...chatHistory,
+            { role: "user" as const, parts: [{ text: lastMsg }] }
+        ]);
+        return { response, collected_fields };
+      } catch (innerErr) {
+         console.error("Failover AI also failed:", innerErr);
+      }
+    }
+
     if (err?.name === "AbortError") {
       return { response: "The AI is taking longer than usual. Please try again in a moment." };
     }
     if (messages.length <= 1) {
       return { response: "I can help you file a complaint. Please tell me what happened." };
     }
-    return { response: "I'm having trouble connecting to the AI. Please try again." };
+    return { response: "I'm having trouble connecting to the AI. Please ensure you have added your Gemini API key in Settings if you are using the live version." };
   }
 }
+
 
 /** Convert audio/video to text using backend AI */
 export async function speechToText(file: File, language: string = "English"): Promise<string> {
