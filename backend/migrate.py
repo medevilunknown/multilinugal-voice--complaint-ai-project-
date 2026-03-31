@@ -34,6 +34,27 @@ def migrate():
         else:
             print(f"Column {col_name} already exists.")
 
+    # Get existing columns for complaints table
+    cursor.execute("PRAGMA table_info(complaints)")
+    complaints_columns = [row[1] for row in cursor.fetchall()]
+
+    needed_complaints = [
+        ("suspect_vpa", "VARCHAR(100)"),
+        ("suspect_phone", "VARCHAR(100)"),
+        ("suspect_bank_account", "VARCHAR(100)")
+    ]
+
+    for col_name, col_type in needed_complaints:
+        if col_name not in complaints_columns:
+            print(f"Adding column {col_name} to complaints table...")
+            try:
+                cursor.execute(f"ALTER TABLE complaints ADD COLUMN {col_name} {col_type}")
+                print(f"✅ Added {col_name} to complaints")
+            except Exception as e:
+                print(f"❌ Failed to add {col_name} to complaints: {e}")
+        else:
+            print(f"Column {col_name} in complaints already exists.")
+
     conn.commit()
     conn.close()
     print("Migration complete.")
